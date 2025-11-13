@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import './Gallery.css'; // Make sure this is imported
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import "./Gallery.css"; // Make sure this is imported
 
 function Gallery() {
   const [tools, setTools] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchGalleryTools = async (query = '') => {
+  const fetchGalleryTools = async (query = "") => {
     setIsLoading(true);
     setError(null);
     try {
-      const url = new URL('http://localhost:3001/api/gallery');
+      const url = new URL("https://api.forge.ericbohmert.com/api/gallery");
       if (query) {
-        url.searchParams.set('q', query);
+        url.searchParams.set("q", query);
       }
       const response = await fetch(url.toString());
       if (!response.ok) {
-        throw new Error('Failed to fetch tools.');
+        throw new Error("Failed to fetch tools.");
       }
       const data = await response.json();
       setTools(data);
@@ -39,7 +39,7 @@ function Gallery() {
   };
 
   const handleClear = () => {
-    setSearchTerm('');
+    setSearchTerm("");
     fetchGalleryTools();
   };
 
@@ -72,7 +72,11 @@ function Gallery() {
             <p>No tools found. Try a different search?</p>
           ) : (
             tools.map((tool) => (
-              <Link to={`/tool/${tool.id}`} key={tool.id} className="tool-card-link">
+              <Link
+                to={`/tool/${tool.id}`}
+                key={tool.id}
+                className="tool-card-link"
+              >
                 <div className="tool-list-item">
                   <div className="tool-list-content">
                     <h3>{tool.name}</h3>

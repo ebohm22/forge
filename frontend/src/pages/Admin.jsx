@@ -1,7 +1,7 @@
 // src/pages/Admin.jsx
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
-import Sandbox from '../components/Sandbox';
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
+import Sandbox from "../components/Sandbox";
 
 function Admin() {
   const [pendingTools, setPendingTools] = useState([]);
@@ -19,8 +19,8 @@ function Admin() {
   const getAuthHeader = () => {
     const token = session.access_token;
     return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     };
   };
 
@@ -28,12 +28,15 @@ function Admin() {
     if (!session) return;
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/admin/pending', {
-        headers: getAuthHeader(),
-      });
+      const response = await fetch(
+        "https://api.forge.ericbohmert.com/api/admin/pending",
+        {
+          headers: getAuthHeader(),
+        }
+      );
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to fetch pending tools.');
+        throw new Error(data.error || "Failed to fetch pending tools.");
       }
       const data = await response.json();
       setPendingTools(data);
@@ -53,16 +56,18 @@ function Admin() {
 
   const handleReview = async (id, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/review/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeader(),
-        body: JSON.stringify({ newStatus }),
-      });
-      if (!response.ok) throw new Error('Failed to update status.');
-      
-      // Remove the tool from the local list
-      setPendingTools(pendingTools.filter(tool => tool.id !== id));
+      const response = await fetch(
+        `https://api.forge.ericbohmert.com/api/admin/review/${id}`,
+        {
+          method: "PUT",
+          headers: getAuthHeader(),
+          body: JSON.stringify({ newStatus }),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to update status.");
 
+      // Remove the tool from the local list
+      setPendingTools(pendingTools.filter((tool) => tool.id !== id));
     } catch (err) {
       setError(err.message);
     }
@@ -77,26 +82,33 @@ function Admin() {
       {pendingTools.length === 0 ? (
         <p>No pending tools. Great job!</p>
       ) : (
-        pendingTools.map(tool => (
+        pendingTools.map((tool) => (
           <div key={tool.id} className="admin-tool-card">
             <h3>{tool.name}</h3>
-            <p><strong>Description:</strong> {tool.description}</p>
-            <p><strong>Original Prompt:</strong> {tool.original_prompt}</p>
-            <p><strong>Submitted:</strong> {new Date(tool.created_at).toLocaleString()}</p>
-            
+            <p>
+              <strong>Description:</strong> {tool.description}
+            </p>
+            <p>
+              <strong>Original Prompt:</strong> {tool.original_prompt}
+            </p>
+            <p>
+              <strong>Submitted:</strong>{" "}
+              {new Date(tool.created_at).toLocaleString()}
+            </p>
+
             <h4>Preview (Sandboxed):</h4>
             <Sandbox htmlCode={tool.generated_html} />
-            
+
             <div className="admin-actions">
-              <button 
+              <button
                 className="admin-approve"
-                onClick={() => handleReview(tool.id, 'published')}
+                onClick={() => handleReview(tool.id, "published")}
               >
                 Approve
               </button>
-              <button 
+              <button
                 className="admin-reject"
-                onClick={() => handleReview(tool.id, 'rejected')}
+                onClick={() => handleReview(tool.id, "rejected")}
               >
                 Reject
               </button>

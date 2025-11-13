@@ -35,11 +35,14 @@ function Generator({ session }) {
     setShowPublishModal(false);
 
     try {
-      const response = await fetch("http://localhost:3001/api/tools/generate", {
-        method: "POST",
-        headers: getAuthHeader(),
-        body: JSON.stringify({ userPrompt: prompt }),
-      });
+      const response = await fetch(
+        "https://api.forge.ericbohmert.com/api/tools/generate",
+        {
+          method: "POST",
+          headers: getAuthHeader(),
+          body: JSON.stringify({ userPrompt: prompt }),
+        }
+      );
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       setGeneratedHtml(data.html);
@@ -63,11 +66,14 @@ function Generator({ session }) {
         generated_html: generatedHtml,
       };
 
-      const response = await fetch("http://localhost:3001/api/tools/submit", {
-        method: "POST",
-        headers: getAuthHeader(),
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        "https://api.forge.ericbohmert.com/api/tools/submit",
+        {
+          method: "POST",
+          headers: getAuthHeader(),
+          body: JSON.stringify(formData),
+        }
+      );
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
@@ -84,7 +90,7 @@ function Generator({ session }) {
     setError("");
     try {
       const response = await fetch(
-        "http://localhost:3001/api/tools/suggest-metadata",
+        "https://api.forge.ericbohmert.com/api/tools/suggest-metadata",
         {
           method: "POST",
           headers: getAuthHeader(),
@@ -150,7 +156,7 @@ function Generator({ session }) {
             onClick={handleOpenPublishModal}
             disabled={isSuggesting}
           >
-            {isSuggesting ? 'Loading...' : 'Publish this tool to the Gallery?'}
+            {isSuggesting ? "Loading..." : "Publish this tool to the Gallery?"}
           </button>
         </>
       )}
@@ -165,12 +171,10 @@ function Generator({ session }) {
           name={toolName}
           description={toolDescription}
           category={toolCategory}
-          
           // Pass the setters
           setName={setToolName}
           setDescription={setToolDescription}
           setCategory={setToolCategory}
-          
           // Pass the handlers
           onCancel={handleClosePublishModal}
           onPublish={handlePublish}

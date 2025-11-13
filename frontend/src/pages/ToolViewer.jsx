@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import Sandbox from "../components/Sandbox";
 import { supabase } from "../supabaseClient"; // 1. Import supabase
 import "../App.css";
-import './ToolViewer.css'
+import "./ToolViewer.css";
 function ToolViewer() {
   const [tool, setTool] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,7 +22,9 @@ function ToolViewer() {
   useEffect(() => {
     const fetchTool = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/gallery/${id}`);
+        const response = await fetch(
+          `https://api.forge.ericbohmert.com/api/gallery/${id}`
+        );
         if (!response.ok) {
           throw new Error("Tool not found.");
         }
@@ -45,7 +47,7 @@ function ToolViewer() {
     setSaveMessage("Saving...");
     try {
       const response = await fetch(
-        `http://localhost:3001/api/my-tools/${id}/save`,
+        `https://api.forge.ericbohmert.com/api/my-tools/${id}/save`,
         {
           method: "POST",
           headers: {
