@@ -1,8 +1,11 @@
 // src/index.ts
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { authMiddleware, adminAuthMiddleware } from './middleware/authMiddleware'
-import { getSupabaseClient, getSupabasePublicClient } from './config/getSupabaseClientClient'
+// 1. Import middleware with .js extension
+import { authMiddleware, adminAuthMiddleware } from './middleware/authMiddleware.js' 
+// 2. Fix import path and add .js extension
+import { getSupabaseClient, getSupabasePublicClient } from './config/supabaseClient.js' 
+// 3. Import services with .js extension
 import {
   runGuardrail,
   findMatchingTool,
@@ -12,44 +15,39 @@ import {
   runWorkflowBrain,
   runMetadataBrain,
   getEmbedding
-} from './services/aiService'
+} from './services/aiService.js'
 
-// This tells Hono what environment variables to expect from Cloudflare
-// (These are set in your .dev.vars file and with 'npx wrangler secret put')
+// 4. Fix Binding names
 export type Bindings = {
-  getSupabaseClient_URL: string;
-  getSupabaseClient_SERVICE_ROLE_KEY: string;
-  getSupabaseClient_ANON_KEY: string;
+  SUPABASE_URL: string;
+  SUPABASE_SERVICE_ROLE_KEY: string;
+  SUPABASE_ANON_KEY: string;
   OPENAI_API_KEY: string;
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
+app.use('*', cors())
 
-// --- Global Middleware ---
-app.use('*', cors()) // Enable CORS for all routes
-
-// --- API Routes ---
 const api = new Hono<{ Bindings: Bindings }>()
 
 // === Public Gallery Routes ===
-// (from routes/galleryRoutes.js)
 api.get('/gallery', async (c) => {
-  const getSupabasePublicClient = getSupabasePublicClient(c);
+  // 5. Fix variable names
+  const supabasePublic = getSupabasePublicClient(c); 
   const searchQuery = c.req.query('q');
-
   try {
     if (searchQuery) {
       console.log(`[Gallery] Running vector search for: "${searchQuery}"`);
       const query_embedding = await getEmbedding(c, searchQuery);
-      const { data, error } = await getSupabasePublicClient.rpc('search_tools', {
+      const { data, error } = await supabasePublic.rpc('search_tools', {
         query_embedding,
-        match_threshold: 0.4, // Using your more lenient value
+        match_threshold: 0.4,
         result_limit: 20
       });
       if (error) throw error;
       return c.json(data);
     } else {
-      const { data, error } = await getSupabasePublicClient
+      const { data, error } = await supabasePublic
         .from('community_tools')
         .select('id, name, description, category')
         .eq('status', 'published')
@@ -64,10 +62,10 @@ api.get('/gallery', async (c) => {
 });
 
 api.get('/gallery/:id', async (c) => {
-  const getSupabasePublicClient = getSupabasePublicClient(c);
+  const supabasePublic = getSupabasePublicClient(c); // Fix variable name
   const id = c.req.param('id');
   try {
-    const { data, error } = await getSupabasePublicClient
+    const { data, error } = await supabasePublic
       .from('community_tools')
       .select('name, description, category, generated_html')
       .eq('id', id)
@@ -83,8 +81,7 @@ api.get('/gallery/:id', async (c) => {
 });
 
 // === User-Protected Tool Routes ===
-// (from routes/toolRoutes.js)
-api.use('/tools/*', authMiddleware); // Protect all /tools/* routes
+api.use('/tools/*', authMiddleware);
 api.post('/tools/generate', async (c) => {
   try {
     const { userPrompt } = await c.req.json();
@@ -129,11 +126,11 @@ api.post('/tools/suggest-metadata', async (c) => {
 });
 
 api.post('/tools/submit', async (c) => {
-  const getSupabaseClient = getSupabaseClient(c);
-  const user = c.get('user'); // Get user from middleware
+  const supabase = getSupabaseClient(c); // Fix variable name
+  const user = c.get('user');
   try {
     const { name, description, category, original_prompt, generated_html } = await c.req.json();
-    const { error } = await getSupabaseClient.from('community_tools').insert([
+    const { error } = await supabase.from('community_tools').insert([
       { user_id: user.id, name, description, category, original_prompt, generated_html }
     ]);
     if (error) throw error;
@@ -145,13 +142,12 @@ api.post('/tools/submit', async (c) => {
 });
 
 // === User-Protected "My Tools" Routes ===
-// (from routes/myToolsRoutes.js)
-api.use('/my-tools/*', authMiddleware); // Protect all /my-tools/* routes
+api.use('/my-tools/*', authMiddleware);
 api.get('/my-tools', async (c) => {
-  const getSupabaseClient = getSupabaseClient(c);
+  const supabase = getSupabaseClient(c); // Fix variable name
   const user = c.get('user');
   try {
-    const { data, error } = await getSupabaseClient
+    const { data, error } = await supabase
       .from('user_saved_tools')
       .select('community_tools ( id, name, description, category )')
       .eq('user_id', user.id);
@@ -165,11 +161,11 @@ api.get('/my-tools', async (c) => {
 });
 
 api.post('/my-tools/:toolId/save', async (c) => {
-  const getSupabaseClient = getSupabaseClient(c);
+  const supabase = getSupabaseClient(c); // Fix variable name
   const user = c.get('user');
   const toolId = c.req.param('toolId');
   try {
-    const { error } = await getSupabaseClient.from('user_saved_tools').insert({
+    const { error } = await supabase.from('user_saved_tools').insert({
       user_id: user.id,
       tool_id: toolId
     });
@@ -185,11 +181,11 @@ api.post('/my-tools/:toolId/save', async (c) => {
 });
 
 api.delete('/my-tools/:toolId/unsave', async (c) => {
-  const getSupabaseClient = getSupabaseClient(c);
+  const supabase = getSupabaseClient(c); // Fix variable name
   const user = c.get('user');
   const toolId = c.req.param('toolId');
   try {
-    const { error } = await getSupabaseClient
+    const { error } = await supabase
       .from('user_saved_tools')
       .delete()
       .eq('user_id', user.id)
@@ -204,14 +200,13 @@ api.delete('/my-tools/:toolId/unsave', async (c) => {
 
 
 // === Admin-Protected Routes ===
-// (from routes/adminRoutes.js)
 const adminApi = new Hono<{ Bindings: Bindings }>();
-adminApi.use('*', authMiddleware, adminAuthMiddleware); // Chain both middlewares
+adminApi.use('*', authMiddleware, adminAuthMiddleware);
 
 adminApi.get('/pending', async (c) => {
-  const getSupabaseClient = getSupabaseClient(c);
+  const supabase = getSupabaseClient(c); // Fix variable name
   try {
-    const { data, error } = await getSupabaseClient
+    const { data, error } = await supabase
       .from('community_tools')
       .select('*')
       .eq('status', 'pending')
@@ -225,14 +220,14 @@ adminApi.get('/pending', async (c) => {
 });
 
 adminApi.put('/review/:id', async (c) => {
-  const getSupabaseClient = getSupabaseClient(c);
+  const supabase = getSupabaseClient(c); // Fix variable name
   const id = c.req.param('id');
   const { newStatus } = await c.req.json();
   let updateData: any = { status: newStatus };
 
   try {
     if (newStatus === 'published') {
-      const { data: toolData, error: fetchError } = await getSupabaseClient
+      const { data: toolData, error: fetchError } = await supabase
         .from('community_tools')
         .select('name, description')
         .eq('id', id)
@@ -244,12 +239,12 @@ adminApi.put('/review/:id', async (c) => {
       updateData.embedding = embedding;
     }
 
-    const { data, error } = await getSupabaseClient
+    const { data, error } = await supabase
       .from('community_tools')
       .update(updateData)
       .eq('id', id)
       .select()
-      .single(); // Use single() to get the object back
+      .single();
       
     if (error) throw error;
     return c.json(data);
