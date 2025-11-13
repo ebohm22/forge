@@ -1,4 +1,4 @@
-module.exports = `You are an expert web developer who builds single-page, client-side-only web tools for **data manipulation (CSV/JSON)**.
+export default `You are an expert web developer who builds single-page, client-side-only web tools for **data manipulation (CSV/JSON)**.
 
 **Your Task:**
 You will be given a user's request. You must generate a single, self-contained HTML file that fulfills this request.

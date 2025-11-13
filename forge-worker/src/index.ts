@@ -2,7 +2,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { authMiddleware, adminAuthMiddleware } from './middleware/authMiddleware'
-import { getSupabaseClient, getSupabasePublicClient } from './config/supabaseClient'
+import { getSupabaseClient, getSupabasePublicClient } from './config/getSupabaseClientClient'
 import {
   runGuardrail,
   findMatchingTool,
@@ -17,9 +17,9 @@ import {
 // This tells Hono what environment variables to expect from Cloudflare
 // (These are set in your .dev.vars file and with 'npx wrangler secret put')
 export type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_SERVICE_ROLE_KEY: string;
-  SUPABASE_ANON_KEY: string;
+  getSupabaseClient_URL: string;
+  getSupabaseClient_SERVICE_ROLE_KEY: string;
+  getSupabaseClient_ANON_KEY: string;
   OPENAI_API_KEY: string;
 }
 
@@ -34,14 +34,14 @@ const api = new Hono<{ Bindings: Bindings }>()
 // === Public Gallery Routes ===
 // (from routes/galleryRoutes.js)
 api.get('/gallery', async (c) => {
-  const supabasePublic = getSupabasePublicClient(c);
+  const getSupabasePublicClient = getSupabasePublicClient(c);
   const searchQuery = c.req.query('q');
 
   try {
     if (searchQuery) {
       console.log(`[Gallery] Running vector search for: "${searchQuery}"`);
       const query_embedding = await getEmbedding(c, searchQuery);
-      const { data, error } = await supabasePublic.rpc('search_tools', {
+      const { data, error } = await getSupabasePublicClient.rpc('search_tools', {
         query_embedding,
         match_threshold: 0.4, // Using your more lenient value
         result_limit: 20
@@ -49,7 +49,7 @@ api.get('/gallery', async (c) => {
       if (error) throw error;
       return c.json(data);
     } else {
-      const { data, error } = await supabasePublic
+      const { data, error } = await getSupabasePublicClient
         .from('community_tools')
         .select('id, name, description, category')
         .eq('status', 'published')
@@ -64,10 +64,10 @@ api.get('/gallery', async (c) => {
 });
 
 api.get('/gallery/:id', async (c) => {
-  const supabasePublic = getSupabasePublicClient(c);
+  const getSupabasePublicClient = getSupabasePublicClient(c);
   const id = c.req.param('id');
   try {
-    const { data, error } = await supabasePublic
+    const { data, error } = await getSupabasePublicClient
       .from('community_tools')
       .select('name, description, category, generated_html')
       .eq('id', id)
@@ -129,11 +129,11 @@ api.post('/tools/suggest-metadata', async (c) => {
 });
 
 api.post('/tools/submit', async (c) => {
-  const supabase = getSupabaseClient(c);
+  const getSupabaseClient = getSupabaseClient(c);
   const user = c.get('user'); // Get user from middleware
   try {
     const { name, description, category, original_prompt, generated_html } = await c.req.json();
-    const { error } = await supabase.from('community_tools').insert([
+    const { error } = await getSupabaseClient.from('community_tools').insert([
       { user_id: user.id, name, description, category, original_prompt, generated_html }
     ]);
     if (error) throw error;
@@ -148,10 +148,10 @@ api.post('/tools/submit', async (c) => {
 // (from routes/myToolsRoutes.js)
 api.use('/my-tools/*', authMiddleware); // Protect all /my-tools/* routes
 api.get('/my-tools', async (c) => {
-  const supabase = getSupabaseClient(c);
+  const getSupabaseClient = getSupabaseClient(c);
   const user = c.get('user');
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient
       .from('user_saved_tools')
       .select('community_tools ( id, name, description, category )')
       .eq('user_id', user.id);
@@ -165,11 +165,11 @@ api.get('/my-tools', async (c) => {
 });
 
 api.post('/my-tools/:toolId/save', async (c) => {
-  const supabase = getSupabaseClient(c);
+  const getSupabaseClient = getSupabaseClient(c);
   const user = c.get('user');
   const toolId = c.req.param('toolId');
   try {
-    const { error } = await supabase.from('user_saved_tools').insert({
+    const { error } = await getSupabaseClient.from('user_saved_tools').insert({
       user_id: user.id,
       tool_id: toolId
     });
@@ -185,11 +185,11 @@ api.post('/my-tools/:toolId/save', async (c) => {
 });
 
 api.delete('/my-tools/:toolId/unsave', async (c) => {
-  const supabase = getSupabaseClient(c);
+  const getSupabaseClient = getSupabaseClient(c);
   const user = c.get('user');
   const toolId = c.req.param('toolId');
   try {
-    const { error } = await supabase
+    const { error } = await getSupabaseClient
       .from('user_saved_tools')
       .delete()
       .eq('user_id', user.id)
@@ -209,9 +209,9 @@ const adminApi = new Hono<{ Bindings: Bindings }>();
 adminApi.use('*', authMiddleware, adminAuthMiddleware); // Chain both middlewares
 
 adminApi.get('/pending', async (c) => {
-  const supabase = getSupabaseClient(c);
+  const getSupabaseClient = getSupabaseClient(c);
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient
       .from('community_tools')
       .select('*')
       .eq('status', 'pending')
@@ -225,14 +225,14 @@ adminApi.get('/pending', async (c) => {
 });
 
 adminApi.put('/review/:id', async (c) => {
-  const supabase = getSupabaseClient(c);
+  const getSupabaseClient = getSupabaseClient(c);
   const id = c.req.param('id');
   const { newStatus } = await c.req.json();
   let updateData: any = { status: newStatus };
 
   try {
     if (newStatus === 'published') {
-      const { data: toolData, error: fetchError } = await supabase
+      const { data: toolData, error: fetchError } = await getSupabaseClient
         .from('community_tools')
         .select('name, description')
         .eq('id', id)
@@ -244,7 +244,7 @@ adminApi.put('/review/:id', async (c) => {
       updateData.embedding = embedding;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabaseClient
       .from('community_tools')
       .update(updateData)
       .eq('id', id)

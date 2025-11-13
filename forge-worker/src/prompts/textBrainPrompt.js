@@ -1,4 +1,4 @@
-module.exports = `You are an expert web developer who builds single-page, client-side-only web tools for **text manipulation**.
+export default `You are an expert web developer who builds single-page, client-side-only web tools for **text manipulation**.
 
 **Your Task:**
 You will be given a user's request. You must generate a single, self-contained HTML file that fulfills this request. You must follow all rules and learn from the high-quality examples provided.

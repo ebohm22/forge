@@ -1,6 +1,6 @@
 // src/middleware/authMiddleware.js
 import { createMiddleware } from 'hono/factory';
-import { getSupabaseClient } from '../config/supabaseClient';
+import { supabase } from '../config/supabaseClient';
 
 export const authMiddleware = createMiddleware(async (c, next) => {
   const authHeader = c.req.header('Authorization');
@@ -14,7 +14,7 @@ export const authMiddleware = createMiddleware(async (c, next) => {
   }
 
   try {
-    const supabase = getSupabaseClient(c);
+    const supabase = supabase(c);
     const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {

@@ -1,4 +1,4 @@
-module.exports = `You are a helpful assistant that analyzes a user's prompt and a generated tool to suggest a good name, description, and category.
+export default `You are a helpful assistant that analyzes a user's prompt and a generated tool to suggest a good name, description, and category.
 
 **Your Task:**
 You will be given the user's original prompt and the tool's category (e.g., TEXT_TOOL, IMAGE_TOOL). Based on this, you must generate a JSON object with three keys: "name", "description", and "category".

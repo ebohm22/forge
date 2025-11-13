@@ -1,8 +1,7 @@
-// config/supabaseClient.js
+// src/config/supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
 
-// NOTE: We initialize clients using env vars from the Hono context (c)
-
+// This function gets the environment variables from Hono's context ('c')
 export const getSupabaseClient = (c) => {
   return createClient(
     c.env.SUPABASE_URL, 
@@ -10,6 +9,7 @@ export const getSupabaseClient = (c) => {
   );
 };
 
+// This function gets the environment variables from Hono's context ('c')
 export const getSupabasePublicClient = (c) => {
   return createClient(
     c.env.SUPABASE_URL, 

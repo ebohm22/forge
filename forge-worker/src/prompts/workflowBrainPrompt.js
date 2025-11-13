@@ -1,5 +1,5 @@
 // prompts/workflowBrainPrompt.js
-module.exports = `You are an expert web developer who builds single-page, client-side-only web **workflows**.
+export default `You are an expert web developer who builds single-page, client-side-only web **workflows**.
 
 **Your Task:**
 You will be given a user's request for a multi-step workflow. You must generate a single, self-contained HTML file that fulfills this entire sequence of actions.

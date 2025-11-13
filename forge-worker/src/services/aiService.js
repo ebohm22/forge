@@ -1,22 +1,19 @@
-// services/aiService.js
-// 1. Import clients and prompts using ESM
-import { getOpenAIClient } from '../config/openaiClient';
-import { getSupabaseClient, getSupabasePublicClient } from '../config/supabaseClient';
+import { getOpenAIClient } from '../config/openaiClient.js';
+import { getSupabaseClient, getSupabasePublicClient } from '../config/supabaseClient.js';
+import GUARDRAIL_SYSTEM_PROMPT from '../prompts/guardrailPrompt.js';
+import BRAIN_SYSTEM_PROMPT from '../prompts/textBrainPrompt.js';
+import IMAGE_BRAIN_PROMPT from '../prompts/imageBrainPrompt.js';
+import DATA_BRAIN_PROMPT from '../prompts/dataBrainPrompt.js';
+import WORKFLOW_BRAIN_PROMPT from '../prompts/workflowBrainPrompt.js';
+import METADATA_BRAIN_PROMPT from '../prompts/metadataBrainPrompt.js';
 
-import GUARDRAIL_SYSTEM_PROMPT from '../prompts/guardrailPrompt';
-import BRAIN_SYSTEM_PROMPT from '../prompts/textBrainPrompt';
-import IMAGE_BRAIN_PROMPT from '../prompts/imageBrainPrompt';
-import DATA_BRAIN_PROMPT from '../prompts/dataBrainPrompt';
-import WORKFLOW_BRAIN_PROMPT from '../prompts/workflowBrainPrompt';
-import METADATA_BRAIN_PROMPT from '../prompts/metadataBrainPrompt';
 /**
  * (NEW!) Generates a vector embedding for a given text.
  * @param {string} text - The text to embed.
  * @returns {Promise<number[]>} - The 1536-dimension vector.
  */
-export async function getEmbedding(c, text) {
-  const openai = getOpenAIClient(c);
-    try {
+export async function getEmbedding(text) { // <-- Use 'export'
+  try {
     const response = await openai.embeddings.create({
       model: "text-embedding-3-small",
       input: text,
@@ -33,9 +30,8 @@ export async function getEmbedding(c, text) {
  * @param {string} userPrompt - The user's raw input.
  * @returns {Promise<"TEXT_TOOL" | "IMAGE_TOOL" | "REJECTED">} - The classification.
  */
-export async function runGuardrail(c, userPrompt) {
-  const openai = getOpenAIClient(c);
-    console.log(`[Guardrail] Classifying prompt: "${userPrompt}"`);
+export async function runGuardrail(userPrompt) { // <-- Use 'export'
+  console.log(`[Guardrail] Classifying prompt: "${userPrompt}"`);
 
   try {
     const completion = await openai.chat.completions.create({
@@ -50,12 +46,11 @@ export async function runGuardrail(c, userPrompt) {
     const classification = completion.choices[0].message.content.trim();
     console.log(`[Guardrail] Classification: ${classification}`);
 
-    // (UPDATED) Add "WORKFLOW" to the valid list
     if (
       classification === "TEXT_TOOL" ||
       classification === "IMAGE_TOOL" ||
       classification === "DATA_TOOL" ||
-      classification === "WORKFLOW" || // <-- New
+      classification === "WORKFLOW" ||
       classification === "REJECTED"
     ) {
       return classification;
@@ -74,8 +69,7 @@ export async function runGuardrail(c, userPrompt) {
  * @param {string} userPrompt - The user's raw input.
  * @returns {Promise<string>} - The generated HTML code.
  */
-export async function runBrain(c, userPrompt) {
-  const openai = getOpenAIClient(c);
+export async function runBrain(userPrompt) { // <-- Use 'export'
   console.log(`[Brain] Generating code for prompt: "${userPrompt}"...`);
 
   try {
@@ -113,8 +107,7 @@ export async function runBrain(c, userPrompt) {
  * @param {string} userPrompt - The user's raw input.
  * @returns {Promise<string>} - The generated HTML code.
  */
-export async function runImageBrain(c, userPrompt) {
-  const openai = getOpenAIClient(c);
+export async function runImageBrain(userPrompt) { // <-- Use 'export'
   console.log(`[ImageBrain] Generating code for prompt: "${userPrompt}"...`);
 
   try {
@@ -144,17 +137,12 @@ export async function runImageBrain(c, userPrompt) {
   }
 }
 
-// services/aiService.js
-
-// ... (your existing runBrain and runImageBrain functions) ...
-
 /**
  * (NEW!) Runs the AI "Brain" for data tool generation.
  * @param {string} userPrompt - The user's raw input.
  * @returns {Promise<string>} - The generated HTML code.
  */
-export async function runDataBrain(c, userPrompt) {
-  const openai = getOpenAIClient(c);
+export async function runDataBrain(userPrompt) { // <-- Use 'export'
   console.log(`[DataBrain] Generating code for prompt: "${userPrompt}"...`);
 
   try {
@@ -189,8 +177,7 @@ export async function runDataBrain(c, userPrompt) {
  * @param {string} userPrompt - The user's raw input.
  * @returns {Promise<string>} - The generated HTML code.
  */
-export async function runWorkflowBrain(c, userPrompt) {
-  const openai = getOpenAIClient(c);
+export async function runWorkflowBrain(userPrompt) { // <-- Use 'export'
   console.log(`[WorkflowBrain] Generating code for prompt: "${userPrompt}"...`);
 
   try {
@@ -220,17 +207,13 @@ export async function runWorkflowBrain(c, userPrompt) {
   }
 }
 
-// services/aiService.js
-// ... (other brain functions)
-
 /**
  * (NEW!) Generates suggested metadata for a tool.
  * @param {string} userPrompt - The user's raw input.
  * @param {string} toolType - The classification (e.g., TEXT_TOOL).
  * @returns {Promise<object>} - An object { name, description, category }.
  */
-export async function runMetadataBrain(c, userPrompt, toolType) {
-  const openai = getOpenAIClient(c);
+export async function runMetadataBrain(userPrompt, toolType) { // <-- Use 'export'
   console.log(`[MetadataBrain] Generating metadata for: "${userPrompt}"`);
   
   let filledPrompt = METADATA_BRAIN_PROMPT
@@ -272,17 +255,15 @@ export async function runMetadataBrain(c, userPrompt, toolType) {
  * @param {string} userPrompt - The user's raw input.
  * @returns {Promise<string|null>} - The HTML of the matching tool, or null.
  */
-export async function findMatchingTool(c, userPrompt) {
-  const supabase = getSupabaseClient(c);
-
+export async function findMatchingTool(userPrompt) { // <-- Use 'export'
   console.log(`[SmartCheck] Running vector search for: "${userPrompt}"`);
   
   try {
     // 1. Get the embedding for the user's prompt
-  const query_embedding = await getEmbedding(c, userPrompt);
+    const query_embedding = await getEmbedding(userPrompt);
 
     // 2. Call our custom database function
-    const { data, error } = await supabase.rpc('match_tool', {
+    const { data, error } = await getSupabasePublicClient.rpc('match_tool', {
       query_embedding,
       match_threshold: 0.67, // This is a "confidence" score. Tune as needed.
       match_count: 1
@@ -304,15 +285,3 @@ export async function findMatchingTool(c, userPrompt) {
     return null; // Fail silently, proceed to generate
   }
 }
-
-// services/aiService.js
-module.exports = {
-  runGuardrail,
-  runBrain,
-  runWorkflowBrain, // <-- Add this
-  runImageBrain, // <-- Add this
-  runDataBrain, // <-- Add this
-  findMatchingTool,
-  runMetadataBrain,
-  getEmbedding
-};
