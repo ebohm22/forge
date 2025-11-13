@@ -1,0 +1,70 @@
+/* src/components/Loader.css */
+
+.forge-loader {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.anvil {
+  width: 80px;
+  height: 40px;
+  background: var(--text-color);
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  /* Simple anvil shape */
+  border-bottom: 10px solid var(--text-color);
+}
+
+/* Anvil horn */
+.anvil::before {
+  content: '';
+  position: absolute;
+  left: -30px;
+  bottom: 10px;
+  width: 30px;
+  height: 10px;
+  background: var(--text-color);
+  border-radius: 5px 0 0 5px;
+}
+
+.hammer {
+  width: 12px;
+  height: 40px;
+  background: var(--text-color);
+  border-radius: 3px;
+  position: absolute;
+  bottom: 50px; /* Start above the anvil */
+  /* Animation: name, duration, timing, iteration */
+  animation: strike 0.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+/* Hammer head */
+.hammer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -14px;
+  width: 40px;
+  height: 12px;
+  background: var(--text-color);
+  border-radius: 3px;
+}
+
+/* The animation keyframes */
+@keyframes strike {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(20px) rotate(-45deg); /* Hit the anvil */
+  }
+  100% {
+    transform: translateY(0) rotate(0deg); /* Back up */
+  }
+}

@@ -1,0 +1,75 @@
+/* src/components/Layout.css */
+
+header {
+  width: 100%;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  box-sizing: border-box;
+}
+
+nav {
+  display: grid;
+  /* Creates three columns: 
+     1. Left group (takes 1 part)
+     2. Middle group (auto-sizes to its content)
+     3. Right group (takes 1 part)
+  */
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  
+  width: 100%;
+  /* Add padding so the content doesn't hit the screen edges */
+  padding: 1rem 2rem;
+  box-sizing: border-box;
+}
+
+/* --- Left Group --- */
+.nav-group-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-self: start; /* Aligns this group to the start of its grid cell */
+}
+
+.nav-group-left p {
+  margin: 0;
+  font-weight: 500;
+  white-space: nowrap; /* Prevents wrapping */
+}
+
+.logo-link {
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+}
+
+/* --- Middle Group --- */
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  justify-self: center; /* Aligns this group to the center of its grid cell */
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: 500;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.nav-links a:hover {
+  color: #333;
+}
+
+/* --- Right Group --- */
+.nav-group-right {
+  display: flex;
+  justify-self: end; /* Aligns this group to the end of its grid cell */
+}
+
+button.sign-out {
+  background: none;
+  border: none;
+  color: var(--text-color);
+}

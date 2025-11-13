@@ -1,0 +1,75 @@
+/* src/pages/Generator.css */
+.generator-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 10vh;
+}
+
+.generator-container h1 {
+  font-size: 3.5rem;
+  font-weight: 600;
+  margin-bottom: 3rem; /* Increased margin here */
+}
+
+.generator-container .main-generator-form {
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+  /* --- ADDED MARGIN BELOW THE INPUT BAR --- */
+  margin-bottom: 2rem;
+  /* --------------------------------------- */
+}
+
+.main-generator-form input[type="text"] {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  padding-right: 4rem;
+  font-size: 1rem;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  color: var(--text-color);
+  box-sizing: border-box;
+}
+
+.main-generator-form input[type="text"]:hover,
+.main-generator-form input[type="text"]:focus {
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
+  border-color: rgba(223, 225, 229, 0);
+  outline: none;
+}
+
+.main-generator-form button[type="submit"] {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  bottom: 8px;
+  background: none;
+  border: none;
+  border-radius: 24px;
+  color: var(--text-color);
+  padding: 0 1rem;
+  font-size: 1.2rem;
+}
+.main-generator-form button[type="submit"]:hover {
+  color: var(--text-color);
+  background: none;
+}
+
+.main-generator-form button[type="submit"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background: none;
+}
+
+button.publish-button {
+  background-color: var(--accent-color);
+  border: none;
+  color: #ffffff;
+  margin-top: 1rem;
+}
+button.publish-button:hover {
+  background-color: #333;
+}

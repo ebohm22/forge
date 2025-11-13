@@ -1,0 +1,103 @@
+/* src/pages/Gallery.css */
+.gallery-container {
+  width: 100%;
+  max-width: 700px;
+  /* Add the page padding that we lost from .App */
+  /* This shifts it 2rem from the left edge */
+  padding: 0 2rem; 
+  box-sizing: border-box;
+}
+
+.search-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+.search-form input {
+  flex-grow: 1;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+.search-form .clear-button {
+  background-color: var(--bg-color);
+  color: var(--text-color-muted);
+}
+
+/* This is the new list container */
+.tool-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.tool-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* This is the new list item style */
+.tool-list-item {
+  /* Remove all card styles */
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  
+  /* Add a Google-style horizontal line */
+  border-bottom: 1px solid var(--border-color);
+  
+  /* Adjust padding for a list */
+  padding: 1.25rem 0.5rem; 
+
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  transition: background-color 0.2s;
+}
+
+/* The last item doesn't need a bottom border */
+.tool-card-link:last-child .tool-list-item {
+  border-bottom: none;
+}
+
+/* Simple hover for the list item */
+.tool-list-item:hover {
+  background-color: var(--bg-color-secondary);
+}
+
+.tool-list-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.tool-list-item h3 {
+  margin-top: 0;
+  margin-bottom: 0.25rem;
+  font-weight: 500; /* Cleaner than bold */
+}
+
+/* Add a minimal underline on hover for the link title */
+.tool-card-link:hover .tool-list-item h3 {
+   text-decoration: underline;
+}
+
+.tool-list-item p {
+  line-height: 1.5;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Category span - no background */
+.tool-list-item span {
+  font-size: 0.9rem;
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  flex-shrink: 0;
+  margin-left: 1.5rem;
+  text-transform: capitalize;
+}

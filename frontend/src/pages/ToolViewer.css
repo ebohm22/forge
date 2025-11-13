@@ -1,0 +1,18 @@
+/* src/pages/ToolViewer.css */
+.tool-viewer-container {
+  max-width: 800px; /* Match the sandbox width */
+  margin: 0 auto;
+}
+.tool-viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.save-button {
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+.save-message {
+  font-style: italic;
+  color: var(--text-color);
+}

@@ -1,0 +1,48 @@
+/* src/pages/AuthPage.css */
+.auth-container {
+  max-width: 400px;
+  margin: 100px auto;
+  padding: 2rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+.auth-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.auth-form label {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.auth-form input {
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+.auth-button {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: var(--text-color); /* Black button */
+  border: none;
+  border-radius: 6px;
+  color: var(--bg-color); /* White text */
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.auth-button:hover {
+  opacity: 0.8;
+  background-color: var(--text-color);
+}
+.auth-toggle {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  cursor: pointer;
+  margin-top: 1.5rem;
+  width: 100%;
+}

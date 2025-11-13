@@ -1,0 +1,102 @@
+/* src/App.css */
+
+/* 1. Root Variables (Minimalist Light Mode)
+   --------------------------------*/
+:root {
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --bg-color: #ffffff;
+  --bg-color-hover: #f1f3f4;
+  --bg-color-secondary: #f8f9fa;
+  --border-color: #e0e0e0;
+  --text-color: #000000;
+  --text-color-muted: #000000;
+  --accent-color: #000000;
+  --error-color: #d93025;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.App {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1, h2, h3 {
+  color: var(--text-color);
+}
+
+/* Global utility classes like button styles and error messages
+  can stay here, since they are used by many components.
+*/
+button {
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  font-weight: 500;
+  background-color: var(--bg-color-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:hover {
+  background-color: var(--bg-color-hover);
+  border-color: var(--border-color);
+}
+
+button:disabled {
+  background-color: var(--bg-color-secondary);
+  color: var(--text-color-muted);
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: var(--error-color);
+  background-color: rgba(217, 48, 37, 0.05);
+  border: 1px solid var(--error-color);
+  padding: 1rem;
+  border-radius: 6px;
+  max-width: 600px;
+  margin-top: 1.5rem;
+}
+
+/* Specific button styles for modal */
+.button-primary {
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: var(--text-color); /* Black */
+  color: var(--bg-color); /* White text */
+  border: 1px solid var(--text-color);
+}
+.button-primary:hover {
+  background-color: #333;
+}
+
+.button-secondary {
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: var(--bg-color); /* White */
+  color: var(--text-color); /* Black text */
+  border: 1px solid var(--border-color);
+}
+.button-secondary:hover {
+  background-color: var(--bg-color-hover);
+}
