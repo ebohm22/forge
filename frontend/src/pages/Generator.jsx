@@ -1,11 +1,14 @@
 // src/pages/Generator.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Sandbox from "../components/Sandbox";
 import PublishModal from "../components/PublishModal";
 import Loader from "../components/Loader"; // 1. Import your new Loader
+import { useToast } from "../context/ToastContext";
 import "./Generator.css";
 // This component now needs the session passed as a prop
 function Generator({ session }) {
+  const { addToast } = useToast();
   const [prompt, setPrompt] = useState("");
   const [generatedHtml, setGeneratedHtml] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +18,18 @@ function Generator({ session }) {
   const [lastClassification, setLastClassification] = useState(null);
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [suggestedMetadata, setSuggestedMetadata] = useState(null);
+  const [remixParentId, setRemixParentId] = useState(null);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.remixSource) {
+      const { id, prompt, html } = location.state.remixSource;
+      setPrompt(prompt);
+      setGeneratedHtml(html);
+      setRemixParentId(id);
+    }
+  }, [location.state]);
 
   const [toolName, setToolName] = useState("");
   const [toolDescription, setToolDescription] = useState("");
@@ -36,7 +51,7 @@ function Generator({ session }) {
 
     try {
       const response = await fetch(
-        "https://api.forge.ericbohmert.com/api/tools/generate",
+        `${import.meta.env.VITE_API_URL}/api/tools/generate`,
         {
           method: "POST",
           headers: getAuthHeader(),
@@ -49,6 +64,7 @@ function Generator({ session }) {
       setLastClassification(data.classification); // <-- SAVE THE RETURNED CLASSIFICATION
     } catch (err) {
       setError(err.message);
+      addToast(err.message, "error");
     } finally {
       setIsLoading(false);
     }
@@ -64,33 +80,33 @@ function Generator({ session }) {
         category: toolCategory,
         original_prompt: prompt,
         generated_html: generatedHtml,
+        remix_parent_id: remixParentId,
       };
 
       const response = await fetch(
-        "https://api.forge.ericbohmert.com/api/tools/submit",
+        `${import.meta.env.VITE_API_URL}/api/tools/submit`,
         {
           method: "POST",
           headers: getAuthHeader(),
           body: JSON.stringify(formData),
         }
       );
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
-      alert("Success! Your tool was submitted for review.");
+      addToast("Tool published successfully!", "success");
       setShowPublishModal(false);
     } catch (err) {
       setError(err.message);
+      addToast(err.message, "error");
     }
   };
-  // ---
   const handleOpenPublishModal = async () => {
     setIsSuggesting(true);
     setError("");
     try {
       const response = await fetch(
-        "https://api.forge.ericbohmert.com/api/tools/suggest-metadata",
+        `${import.meta.env.VITE_API_URL}/api/tools/suggest-metadata`,
         {
           method: "POST",
           headers: getAuthHeader(),
@@ -114,6 +130,7 @@ function Generator({ session }) {
       setShowPublishModal(true); // Now open the modal
     } catch (err) {
       setError(err.message);
+      addToast(err.message, "error");
     } finally {
       setIsSuggesting(false);
     }
@@ -125,7 +142,32 @@ function Generator({ session }) {
   };
   return (
     <div className="generator-container">
-      <h1>Forge</h1>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{ marginBottom: '1rem' }}>Forge</h1>
+        <a href="/conversation" style={{ 
+          display: 'inline-block',
+          padding: '0.6rem 1.2rem', 
+          background: 'transparent',
+          border: '1px solid var(--border-color)',
+          color: 'var(--text-color)', 
+          borderRadius: '6px', 
+          textDecoration: 'none',
+          fontSize: '0.9rem',
+          transition: 'all 0.2s ease',
+          fontWeight: 500
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.borderColor = 'var(--primary-color)';
+          e.currentTarget.style.color = 'var(--primary-color)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border-color)';
+          e.currentTarget.style.color = 'var(--text-color)';
+        }}
+        >
+          Conversation Mode
+        </a>
+      </div>
 
       {/* --- ADD THE CLASSNAME HERE --- */}
       <form onSubmit={handleSubmit} className="main-generator-form">

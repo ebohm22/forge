@@ -1,6 +1,6 @@
 // src/pages/ToolViewer.jsx
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Sandbox from "../components/Sandbox";
 import { supabase } from "../supabaseClient"; // 1. Import supabase
 import "../App.css";
@@ -10,7 +10,11 @@ function ToolViewer() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saveMessage, setSaveMessage] = useState(""); // 2. Add state for feedback
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [viewCount, setViewCount] = useState(0);
   const { id } = useParams();
+  const navigate = useNavigate();
   // 3. Get the session to make authenticated API calls
   const [session, setSession] = useState(null);
   useEffect(() => {
@@ -30,6 +34,8 @@ function ToolViewer() {
         }
         const data = await response.json();
         setTool(data);
+        setLikeCount(data.likeCount || 0);
+        setViewCount(data.views || 0);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -39,6 +45,52 @@ function ToolViewer() {
 
     fetchTool();
   }, [id]); // Re-run if the ID changes
+
+  useEffect(() => {
+    if (session && id) {
+      fetch(`${import.meta.env.VITE_API_URL}/api/tools/${id}/like-status`, {
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      })
+      .then(res => res.json())
+      .then(data => setLiked(data.liked))
+      .catch(console.error);
+    }
+  }, [session, id]);
+
+  useEffect(() => {
+    if (id) {
+      fetch(`${import.meta.env.VITE_API_URL}/api/tools/${id}/view`, { method: 'POST' })
+        .then(res => {
+          if (res.ok) {
+            // Optimistically increment the view count locally
+            setViewCount(prev => prev + 1);
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (data.error) {
+            console.error('View tracking error:', data.error);
+          }
+        })
+        .catch(err => console.error('View tracking failed:', err));
+    }
+  }, [id]);
+
+  const handleLike = async () => {
+    if (!session) return alert("Please log in to like.");
+    setLiked(!liked);
+    setLikeCount(prev => liked ? prev - 1 : prev + 1);
+    
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/tools/${id}/like`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` }
+      });
+    } catch (err) {
+      setLiked(!liked);
+      setLikeCount(prev => liked ? prev + 1 : prev - 1);
+    }
+  };
   const handleSaveTool = async () => {
     if (!session) {
       alert("Please log in to save tools.");
@@ -63,6 +115,19 @@ function ToolViewer() {
       setSaveMessage(`Error: ${err.message}`);
     }
   };
+
+  const handleRemix = () => {
+    navigate("/", {
+      state: {
+        remixSource: {
+          id: id,
+          prompt: tool.original_prompt || `Remix of ${tool.name}`,
+          html: tool.generated_html,
+        },
+      },
+    });
+  };
+
   if (isLoading) {
     return <h2>Loading tool...</h2>;
   }
@@ -78,11 +143,31 @@ function ToolViewer() {
   return (
     <div className="tool-viewer-container">
       <div className="tool-viewer-header">
-        <h2>{tool.name}</h2>
-        {/* 5. Add the save button */}
-        <button onClick={handleSaveTool} className="save-button">
-          Save to My Tools
-        </button>
+        <div>
+          <h2>{tool.name}</h2>
+          {tool.profiles?.username && (
+            <p className="tool-author">
+              by{" "}
+              <Link to={`/user/${tool.profiles.username}`}>
+                {tool.profiles.username}
+              </Link>
+            </p>
+          )}
+        </div>
+        <div className="tool-actions">
+          <div className="tool-stats">
+            <span>{viewCount} Views</span>
+            <button onClick={handleLike} className={`like-button ${liked ? 'liked' : ''}`}>
+              {liked ? '♥' : '♡'} {likeCount}
+            </button>
+          </div>
+          <button onClick={handleRemix} className="remix-button">
+            Remix
+          </button>
+          <button onClick={handleSaveTool} className="save-button">
+            Save to My Tools
+          </button>
+        </div>
       </div>
       {saveMessage && <p className="save-message">{saveMessage}</p>}
 
